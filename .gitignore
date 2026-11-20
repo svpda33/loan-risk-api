@@ -1,0 +1,15 @@
+/Datasets/
+/notebooks/
+/models/*
+!/models/stage1_pipeline.joblib
+!/models/stage2_full_eligible_lightgbm_pipeline.joblib
+/.venv/
+/venv/
+/__pycache__/
+/.pytest_cache/
+/.railway/
+.env
+.env.*
+*.log
+*.pem
+*.key
