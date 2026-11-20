@@ -1,5 +1,8 @@
 /Datasets/
 /notebooks/
+*.csv
+*.ipynb
+*.ipynb_checkpoints/
 /models/*
 !/models/stage1_pipeline.joblib
 !/models/stage2_full_eligible_lightgbm_pipeline.joblib
@@ -11,5 +14,11 @@
 .env
 .env.*
 *.log
+*.tmp
 *.pem
 *.key
+*.p12
+*.pfx
+*.pkl
+*.pickle
+.DS_Store

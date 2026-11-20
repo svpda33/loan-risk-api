@@ -13,7 +13,7 @@ The original CSV files and notebooks are **not required** at inference and are e
 
 ## Run locally
 
-Use Python 3.14.3, then run from this directory:
+Use Python 3.13.7, then run from this directory:
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -30,15 +30,15 @@ Open `http://127.0.0.1:8000/docs` or `http://127.0.0.1:8000/health`. The applica
 
 Both endpoints return class probabilities, the saved threshold, a predicted class and an explanation. Input keys are required even when their value may be `null`. Extra fields and invalid types return HTTP 422.
 
-## Railway deployment, when approved
+## Railway deployment
 
-1. Create a **private** GitHub repository containing `main.py`, `.python-version`, `requirements.txt`, `README.md`, `postman_collection.json`, `.gitignore`, and only the **two selected** model artifacts above. Before pushing, preview the files with `git status` and `git add -n .`. Never push `Datasets/`, notebooks, `.env`, or other model artifacts.
-2. In Railway, create one service from that GitHub repository. Keep the project root as the service root. Railpack should detect `requirements.txt` and `.python-version`. Set the Start Command to `python main.py` if Railway does not detect it automatically. This starts Uvicorn on `0.0.0.0` and Railway's `PORT` with one worker.
-3. Set the service healthcheck path to `/health`. No database, volume, credentials, or dataset path is needed. Keep one service instance and watch the build logs, startup logs, memory graph and credits.
-4. Generate a public domain in Railway's Networking settings. Replace the Postman `baseUrl` variable with that URL and verify `/health`, `/docs`, and both prediction routes. Do this only after deciding to spend trial credits.
-
-Railway currently lists a **1 GB trial** service limit and a **0.5 GB Free** service limit. Local Windows measurements are encouraging for both, but Linux startup, native-wheel installation and actual Railway memory must be checked in the first deployment. The Free plan's monthly credit is small and services may sleep when idle. If the service approaches its memory limit, stop it and review the measurements before continuing.
+1. Use `svpda33/loan-risk-api` as the Source Repo and keep the Root Directory as `/`.
+2. Use Railpack as the builder. It detects `requirements.txt` and `.python-version`; no Dockerfile or Procfile is needed.
+3. Set the Start Command to `python main.py`. The application listens on `0.0.0.0`, reads Railway's `PORT` environment variable, and uses one Uvicorn worker.
+4. Set the Healthcheck Path to `/health`. No database, volume, credential, or dataset path is required.
+5. Generate a public Railway domain after deployment and update the Postman `baseUrl` variable.
+6. Verify `/health`, `/docs`, and both prediction routes. Railway Linux build and startup behavior should be checked from the actual Railway build logs; this repository does not claim that a build was performed before deployment.
 
 ## Runtime notes
 
-The app loads both artifacts once. No training or CSV loading occurs during startup or requests. For Stage 2, `main.py` converts the provided categorical strings to pandas categories using the levels saved in the artifact. There is no external preprocessing file. Python 3.14.3 and the pinned native packages should be kept together; changing versions requires a new compatibility check.
+The app loads both artifacts once. No training or CSV loading occurs during startup or requests. For Stage 2, `main.py` converts the provided categorical strings to pandas categories using the levels saved in the artifact. There is no external preprocessing file. Python 3.13.7 and the pinned native packages are selected as a conservative Railpack-compatible set; changing versions requires a new compatibility check.
