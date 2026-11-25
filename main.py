@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -13,6 +14,9 @@ import joblib
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 
@@ -112,6 +116,17 @@ app = FastAPI(
     description="Research prototype with separate historical-approval-proxy and repayment-risk models.",
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_response(request: Request, exc: RequestValidationError):
+    # Pydantic rejects non-finite input, but JSONResponse cannot serialize that
+    # same value when FastAPI includes it in the validation error's "input" field.
+    safe_errors = jsonable_encoder(
+        exc.errors(),
+        custom_encoder={float: lambda value: value if math.isfinite(value) else str(value)},
+    )
+    return JSONResponse(status_code=422, content={"detail": safe_errors})
 
 
 @app.get("/")
